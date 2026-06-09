@@ -1,0 +1,22 @@
+============================================================
+   LIENS D'ACCÈS - LA SCAMPIA (Localhost)
+============================================================
+
+1. MENU CLIENT (SERVEUR / COMMANDE) :
+   http://localhost:3000/r/la-scampia/t/P1
+
+2. PATRON (ADMIN RESTAURANT) :
+   http://localhost:3000/admin/la-scampia
+
+3. CUISINE :
+   http://localhost:3000/kitchen/la-scampia
+
+4. SUPER ADMIN (PLATEFORME) :
+   http://localhost:3000/superadmin
+
+------------------------------------------------------------
+INSTRUCTIONS :
+1. Lancez d'abord "START_SKANIT.bat".
+2. Attendez que le message "Ready" apparaisse dans la console.
+3. Cliquez sur les liens ci-dessus pour accéder aux interfaces.
+============================================================

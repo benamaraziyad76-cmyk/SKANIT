@@ -1,0 +1,213 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+// ─── USERS & AUTH ───────────────────────────────────────────────────────────
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  password     String
+  name         String
+  role         String   @default("WAITER")
+  // SUPER_ADMIN | OWNER | MANAGER | WAITER | KITCHEN
+  restaurantId String?
+  phone        String?
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  restaurant   Restaurant? @relation(fields: [restaurantId], references: [id], onDelete: SetNull)
+}
+
+// ─── RESTAURANTS ─────────────────────────────────────────────────────────────
+model Restaurant {
+  id             String            @id @default(cuid())
+  name           String
+  slug           String            @unique
+  description    String?
+  address        String?
+  phone          String?
+  logo           String?
+  accentColor    String            @default("#E85D04")
+  secondaryColor String            @default("#1C1917")
+  themeMode      String            @default("LIGHT")
+  font           String            @default("Inter")
+  taxRate        Float             @default(0.1)
+  currency       String            @default("€")
+  openingHours   String?
+  isActive       Boolean           @default(true)
+  plan           String            @default("STARTER") // STARTER | PRO | ENTERPRISE
+  promoImage     String?
+  promoText      String?           @default("NOUVEAUTÉS")
+  promoPrice     Float?
+  promoCategoryId String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  allergens      Allergen[]
+  categories     Category[]
+  ingredients    Ingredient[]
+  orders         Order[]
+  tables         RestaurantTable[]
+  users          User[]
+}
+
+// ─── MENU ─────────────────────────────────────────────────────────────────────
+model Category {
+  id           String     @id @default(cuid())
+  name         String
+  slug         String
+  icon         String?
+  sortOrder    Int        @default(0)
+  restaurantId String
+  createdAt    DateTime   @default(now())
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  items        MenuItem[]
+
+  @@unique([restaurantId, slug])
+}
+
+model MenuItem {
+  id           String             @id @default(cuid())
+  name         String
+  description  String?
+  price        Float
+  image        String?
+  mediaType    String             @default("image")
+  mediaUrl     String?
+  isAvailable  Boolean            @default(true)
+  isSignature  Boolean            @default(false)
+  tags         String?
+  sortOrder    Int                @default(0)
+  categoryId   String
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  iosModelUrl  String?
+  modelUrl     String?
+  ingredients  MenuIngredient[]
+  category     Category           @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  allergens    MenuItemAllergen[]
+  optionGroups OptionGroup[]
+  orderItems   OrderItem[]
+}
+
+model OptionGroup {
+  id         String       @id @default(cuid())
+  name       String
+  type       String       @default("radio")
+  required   Boolean      @default(false)
+  menuItemId String
+  sortOrder  Int          @default(0)
+  menuItem   MenuItem     @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+  options    OptionItem[]
+}
+
+model OptionItem {
+  id               String            @id @default(cuid())
+  name             String
+  priceDelta       Float             @default(0)
+  isDefault        Boolean           @default(false)
+  optionGroupId    String
+  sortOrder        Int               @default(0)
+  optionGroup      OptionGroup       @relation(fields: [optionGroupId], references: [id], onDelete: Cascade)
+  orderItemOptions OrderItemOption[]
+}
+
+model Allergen {
+  id           String             @id @default(cuid())
+  name         String
+  icon         String?
+  restaurantId String
+  restaurant   Restaurant         @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  menuItems    MenuItemAllergen[]
+}
+
+model MenuItemAllergen {
+  menuItemId String
+  allergenId String
+  allergen   Allergen @relation(fields: [allergenId], references: [id], onDelete: Cascade)
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  @@id([menuItemId, allergenId])
+}
+
+// ─── TABLES ───────────────────────────────────────────────────────────────────
+model RestaurantTable {
+  id           String     @id @default(cuid())
+  tableCode    String
+  label        String
+  restaurantId String
+  createdAt    DateTime   @default(now())
+  orders       Order[]
+  restaurant   Restaurant @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+
+  @@unique([restaurantId, tableCode])
+}
+
+// ─── ORDERS ───────────────────────────────────────────────────────────────────
+model Order {
+  id            String          @id @default(cuid())
+  orderNumber   Int
+  status        String          @default("RECEIVED")
+  // RECEIVED | PREPARING | READY | SERVED | CANCELLED
+  paymentMethod String          @default("CARD")
+  // CARD | CASH | APPLE_PAY | GOOGLE_PAY
+  paymentStatus String          @default("PENDING")
+  // PENDING | PAID | REFUNDED
+  total         Float
+  notes         String?
+  restaurantId  String
+  tableId       String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  restaurant    Restaurant      @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  table         RestaurantTable @relation(fields: [tableId], references: [id])
+  items         OrderItem[]
+}
+
+model OrderItem {
+  id         String            @id @default(cuid())
+  quantity   Int               @default(1)
+  unitPrice  Float
+  notes      String?
+  menuItemId String
+  orderId    String
+  order      Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItem   MenuItem          @relation(fields: [menuItemId], references: [id])
+  options    OrderItemOption[]
+}
+
+model OrderItemOption {
+  id           String     @id @default(cuid())
+  optionItemId String
+  orderItemId  String
+  orderItem    OrderItem  @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  optionItem   OptionItem @relation(fields: [optionItemId], references: [id])
+}
+
+// ─── INVENTORY ────────────────────────────────────────────────────────────────
+model Ingredient {
+  id           String           @id @default(cuid())
+  name         String
+  unit         String           @default("unit")
+  stock        Float            @default(0)
+  minStock     Float            @default(10)
+  restaurantId String
+  restaurant   Restaurant       @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  menuItems    MenuIngredient[]
+}
+
+model MenuIngredient {
+  id           String     @id @default(cuid())
+  quantity     Float      @default(1)
+  menuItemId   String
+  ingredientId String
+  ingredient   Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+  menuItem     MenuItem   @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  @@unique([menuItemId, ingredientId])
+}

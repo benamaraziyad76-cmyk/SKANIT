@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Outil de Découpe — La Scampia</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: #fff; padding: 20px; }
+  h1 { text-align: center; margin-bottom: 10px; font-size: 1.5em; }
+  .status { text-align: center; margin: 10px 0; color: #0f0; font-size: 0.9em; }
+  #log { background: #0d0d1a; border-radius: 8px; padding: 15px; max-height: 400px; overflow-y: auto; font-family: monospace; font-size: 0.85em; line-height: 1.5; }
+  .ok { color: #4caf50; }
+  .err { color: #f44336; }
+  .info { color: #42a5f5; }
+  #gallery { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+  #gallery .item { background: #16213e; border-radius: 8px; padding: 8px; text-align: center; width: 150px; }
+  #gallery .item img { width: 140px; height: 140px; object-fit: contain; border-radius: 4px; background: #fff; }
+  #gallery .item p { font-size: 0.7em; margin-top: 4px; word-break: break-all; }
+  button { display: block; margin: 20px auto; padding: 12px 30px; background: linear-gradient(135deg, #e94560, #0f3460); color: #fff; border: none; border-radius: 8px; font-size: 1.1em; cursor: pointer; }
+  button:hover { opacity: 0.9; }
+  .step-input { margin: 15px auto; text-align: center; }
+  .step-input label { display: block; margin-bottom: 5px; font-size: 0.9em; color: #aaa; }
+  canvas { display: none; }
+</style>
+</head>
+<body>
+
+<h1>🔪 Découpe automatique des photos menu</h1>
+<p class="status" id="statusText">Étape 1 : Sélectionne les 4 fichiers photos depuis PHOTOS_NOUVELLES</p>
+
+<div class="step-input">
+  <label>Sélectionne : <strong>burgers.jpg,.png</strong>, <strong>naan.jpg.jpg</strong>, <strong>plats.jpg.jpg</strong>, <strong>sandwiches.jpg.jpg</strong></label>
+  <input type="file" id="fileInput" multiple accept="image/*" />
+</div>
+
+<button id="startBtn" disabled>🚀 Lancer le découpage</button>
+
+<div id="log"></div>
+<div id="gallery"></div>
+
+<canvas id="cropCanvas"></canvas>
+
+<script>
+const fileInput = document.getElementById('fileInput');
+const startBtn = document.getElementById('startBtn');
+const logEl = document.getElementById('log');
+const gallery = document.getElementById('gallery');
+const statusText = document.getElementById('statusText');
+const canvas = document.getElementById('cropCanvas');
+const ctx = canvas.getContext('2d');
+
+let loadedFiles = {};
+
+function log(msg, type = 'info') {
+  const div = document.createElement('div');
+  div.className = type;
+  div.textContent = msg;
+  logEl.appendChild(div);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+fileInput.addEventListener('change', (e) => {
+  const files = Array.from(e.target.files);
+  files.forEach(f => {
+    const name = f.name.toLowerCase();
+    if (name.includes('burger')) loadedFiles['burgers'] = f;
+    else if (name.includes('naan')) loadedFiles['naan'] = f;
+    else if (name.includes('plat')) loadedFiles['plats'] = f;
+    else if (name.includes('sandwich')) loadedFiles['sandwiches'] = f;
+  });
+
+  const count = Object.keys(loadedFiles).length;
+  statusText.textContent = `${count}/4 fichiers chargés : ${Object.keys(loadedFiles).join(', ')}`;
+  startBtn.disabled = count === 0;
+  if (count > 0) log(`✅ ${count} fichier(s) reconnu(s) : ${Object.keys(loadedFiles).join(', ')}`, 'ok');
+});
+
+// Crop definitions: [sourceKey, outputName, left%, top%, width%, height%]
+const CROPS = [
+  // ── SMASH BURGERS (fond blanc, grille 2×3, case 6 vide) ──
+  ['burgers', 'smash-double-s.jpg',  0.00, 0.00, 0.50, 0.32],
+  ['burgers', 'smash-smoke.jpg',     0.50, 0.00, 0.50, 0.32],
+  ['burgers', 'smash-big-smah.jpg',  0.00, 0.33, 0.50, 0.32],
+  ['burgers', 'smash-crispy.jpg',    0.50, 0.33, 0.50, 0.32],
+  ['burgers', 'smash-contry.jpg',    0.00, 0.66, 0.50, 0.32],
+  ['burgers', 'smash-le-s.jpg',      0.00, 0.00, 0.50, 0.32], // réutilise Double S
+
+  // ── NAAN BURGERS (capture Canva, zone utile ~25%→80%) ──
+  ['naan', 'naanburger-big-naan.jpg',      0.06, 0.25, 0.40, 0.15],
+  ['naan', 'naanburger-cowboy.jpg',        0.54, 0.25, 0.40, 0.15],
+  ['naan', 'naanburger-crispy-chickn.jpg', 0.06, 0.46, 0.40, 0.15],
+  ['naan', 'naanburger-chevre-miel.jpg',   0.54, 0.46, 0.40, 0.15],
+  ['naan', 'naanburger-le-smashe.jpg',     0.06, 0.65, 0.40, 0.15],
+  ['naan', 'naanburger-boursin.jpg',       0.54, 0.65, 0.40, 0.15],
+
+  // ── PLATS CUISINÉS (fond blanc, grille 2×3) ──
+  ['plats', 'plat-escalope-milanaise.jpg', 0.02, 0.03, 0.46, 0.28],
+  ['plats', 'plat-steak-cheval.jpg',       0.52, 0.03, 0.46, 0.28],
+  ['plats', 'plat-poulet-normand.jpg',     0.02, 0.35, 0.46, 0.28],
+  ['plats', 'plat-entrecote.jpg',          0.52, 0.35, 0.46, 0.28],
+  ['plats', 'plat-escalope-gratinee.jpg',  0.02, 0.67, 0.46, 0.28],
+  ['plats', 'plat-lasagne.jpg',            0.52, 0.67, 0.46, 0.28],
+
+  // ── SANDWICHES (capture Canva, zone utile ~27%→73%) ──
+  ['sandwiches', 'sandwich-americain.jpg', 0.06, 0.27, 0.40, 0.13],
+  ['sandwiches', 'sandwich-chicken.jpg',   0.54, 0.27, 0.40, 0.13],
+  ['sandwiches', 'sandwich-kebab.jpg',     0.06, 0.45, 0.40, 0.13],
+  ['sandwiches', 'sandwich-royal.jpg',     0.54, 0.45, 0.40, 0.13],
+  ['sandwiches', 'sandwich-special.jpg',   0.06, 0.60, 0.40, 0.13],
+  ['sandwiches', 'sandwich-boursin.jpg',   0.54, 0.60, 0.40, 0.13],
+  ['sandwiches', 'sandwich-wrap-1v.jpg',   0.06, 0.27, 0.40, 0.13],
+  ['sandwiches', 'sandwich-wrap-2v.jpg',   0.06, 0.45, 0.40, 0.13],
+  ['sandwiches', 'sandwich-wrap-3v.jpg',   0.54, 0.45, 0.40, 0.13],
+];
+
+function loadImage(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = URL.createObjectURL(file);
+  });
+}
+
+async function cropImage(img, name, left, top, width, height) {
+  const sx = Math.round(left * img.width);
+  const sy = Math.round(top * img.height);
+  const sw = Math.round(width * img.width);
+  const sh = Math.round(height * img.height);
+
+  canvas.width = sw;
+  canvas.height = sh;
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, sw, sh);
+  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+
+  return new Promise((resolve) => {
+    canvas.toBlob((blob) => {
+      resolve({ name, blob, url: URL.createObjectURL(blob) });
+    }, 'image/jpeg', 0.95);
+  });
+}
+
+startBtn.addEventListener('click', async () => {
+  startBtn.disabled = true;
+  log('════════════════════════════════════════════════', 'info');
+  log('  DÉBUT DU DÉCOUPAGE AUTOMATIQUE', 'info');
+  log('════════════════════════════════════════════════', 'info');
+
+  const images = {};
+  for (const [key, file] of Object.entries(loadedFiles)) {
+    try {
+      images[key] = await loadImage(file);
+      log(`📂 ${key} chargé (${images[key].width}×${images[key].height}px)`, 'ok');
+    } catch (e) {
+      log(`❌ Erreur chargement ${key}: ${e.message}`, 'err');
+    }
+  }
+
+  const results = [];
+  for (const [srcKey, outputName, left, top, width, height] of CROPS) {
+    if (!images[srcKey]) {
+      log(`⏭️ ${outputName} — source "${srcKey}" non chargée`, 'err');
+      continue;
+    }
+    try {
+      const result = await cropImage(images[srcKey], outputName, left, top, width, height);
+      results.push(result);
+      log(`✅ ${outputName}`, 'ok');
+    } catch (e) {
+      log(`❌ ${outputName}: ${e.message}`, 'err');
+    }
+  }
+
+  log('', 'info');
+  log(`🎉 ${results.length} images découpées !`, 'ok');
+  log('', 'info');
+  log('📥 Télécharge le ZIP ci-dessous et extrais-le dans public/menu-images/', 'info');
+
+  // Show gallery
+  gallery.innerHTML = '';
+  results.forEach(r => {
+    const div = document.createElement('div');
+    div.className = 'item';
+    div.innerHTML = `<img src="${r.url}" /><p>${r.name}</p>`;
+    gallery.appendChild(div);
+  });
+
+  // Create ZIP-like download (individual files + batch download)
+  statusText.textContent = `✅ ${results.length} images découpées ! Clique sur chaque image ou télécharge tout.`;
+
+  // Download all button
+  const dlAllBtn = document.createElement('button');
+  dlAllBtn.textContent = '📥 Télécharger toutes les images';
+  dlAllBtn.style.marginTop = '10px';
+  dlAllBtn.onclick = () => {
+    results.forEach((r, i) => {
+      setTimeout(() => {
+        const a = document.createElement('a');
+        a.href = r.url;
+        a.download = r.name;
+        a.click();
+      }, i * 200);
+    });
+  };
+  logEl.parentNode.insertBefore(dlAllBtn, gallery);
+
+  // Individual click to download
+  gallery.querySelectorAll('.item').forEach((item, i) => {
+    item.style.cursor = 'pointer';
+    item.onclick = () => {
+      const a = document.createElement('a');
+      a.href = results[i].url;
+      a.download = results[i].name;
+      a.click();
+    };
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pitch Deck - ScanAppetit</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#fafaf9',
+                            100: '#f5f5f4',
+                            200: '#e7e5e4',
+                            500: '#d97706',
+                            900: '#1c1917',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #fafaf9;
+            color: #1c1917;
+            margin: 0;
+            padding: 0;
+        }
+        .slide {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            page-break-after: always;
+            padding: 4rem;
+        }
+        
+        /* Controles de navigation */
+        #controls {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            z-index: 50;
+            display: flex;
+            gap: 1rem;
+        }
+        button.nav-btn {
+            background: #ffffff;
+            border: 1px solid #e7e5e4;
+            color: #1c1917;
+            width: 3rem;
+            height: 3rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+        button.nav-btn:hover {
+            border-color: #d97706;
+            color: #d97706;
+        }
+
+        /* Mockup Mobile CSS */
+        .mockup-mobile {
+            width: 300px;
+            height: 600px;
+            background: #ffffff;
+            border-radius: 2.5rem;
+            border: 8px solid #1c1917;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Mockup Tablette CSS */
+        .mockup-tablet {
+            width: 600px;
+            height: 400px;
+            background: #1c1917;
+            border-radius: 1.5rem;
+            border: 12px solid #292524;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            overflow: hidden;
+            position: relative;
+        }
+
+        @media print {
+            @page {
+                size: landscape;
+                margin: 0;
+            }
+            body {
+                background-color: #ffffff;
+            }
+            .slide {
+                height: 100vh;
+                page-break-after: always;
+            }
+            #controls {
+                display: none !important;
+            }
+            .mockup-mobile, .mockup-tablet {
+                box-shadow: none !important;
+                border-color: #e7e5e4 !important;
+            }
+            .bg-brand-900 {
+                background-color: #1c1917 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            .text-brand-500 {
+                color: #d97706 !important;
+            }
+        }
+    </style>
+</head>
+<body class="antialiased overflow-x-hidden">
+
+    <div id="controls" class="print:hidden">
+        <button class="nav-btn" onclick="prevSlide()"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"></path></svg></button>
+        <button class="nav-btn" onclick="window.print()"><svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg></button>
+        <button class="nav-btn" onclick="nextSlide()"><svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"></path></svg></button>
+    </div>
+
+    <div id="slides-container">
+        
+        <!-- Slide 1 : Titre principal -->
+        <div class="slide flex flex-col justify-center items-center text-center">
+            <h1 class="text-6xl font-extrabold tracking-tight text-brand-900 mb-6">ScanAppetit</h1>
+            <p class="text-2xl text-gray-500 font-light mb-12">Digitalisation premium de l'expérience en salle.</p>
+            <div class="h-1 w-24 bg-brand-500 mb-12"></div>
+            <div class="flex gap-12 text-sm uppercase tracking-widest text-gray-400 font-semibold">
+                <span>Expérience Client</span>
+                <span>Réalité Augmentée</span>
+                <span>Gestion Opérationnelle</span>
+            </div>
+        </div>
+
+        <!-- Slide 2 : Le problème -->
+        <div class="slide">
+            <div class="w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-16">
+                <div class="flex-1">
+                    <p class="text-brand-500 font-semibold tracking-widest uppercase mb-4 text-sm">Le Constat</p>
+                    <h2 class="text-4xl font-bold text-brand-900 mb-8 leading-tight">Le menu PDF classique est devenu une contrainte.</h2>
+                    <ul class="space-y-6 text-gray-600">
+                        <li class="flex flex-col border-l-2 border-brand-500 pl-6">
+                            <span class="font-bold text-brand-900 text-lg mb-1">Illisible sur mobile</span>
+                            <span>Le client doit zoomer en permanence, rallongeant le temps de décision.</span>
+                        </li>
+                        <li class="flex flex-col border-l-2 border-gray-200 pl-6">
+                            <span class="font-bold text-brand-900 text-lg mb-1">Perte de ventes additionnelles</span>
+                            <span>L'absence de visuels limite l'attrait des suppléments et desserts.</span>
+                        </li>
+                        <li class="flex flex-col border-l-2 border-gray-200 pl-6">
+                            <span class="font-bold text-brand-900 text-lg mb-1">Charge sur le personnel</span>
+                            <span>Les serveurs passent un temps précieux à détailler la composition des plats.</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="flex-1 w-full bg-gray-100 rounded-2xl p-12 text-center aspect-square flex flex-col justify-center items-center">
+                    <svg class="w-24 h-24 text-gray-400 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    <p class="text-gray-500 font-medium">L'expérience PDF atteint ses limites</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 3 : La Solution / Screen Interface -->
+        <div class="slide">
+            <div class="w-full max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-16">
+                <!-- Mockup de l'interface Menu -->
+                <div class="mockup-mobile flex flex-col">
+                    <div class="bg-brand-900 text-white p-6 pt-10 pb-4">
+                        <h3 class="font-bold text-lg">Le Jardin</h3>
+                        <p class="text-xs text-gray-400">Table 4</p>
+                    </div>
+                    <div class="p-4 flex-1 bg-gray-50">
+                        <div class="bg-gray-200 h-32 rounded-xl mb-4 w-full relative overflow-hidden">
+                             <!-- Image placeholder -->
+                             <div class="absolute inset-0 bg-gradient-to-br from-brand-500/20 to-brand-500/5"></div>
+                        </div>
+                        <h4 class="font-bold text-brand-900">Pizza Truffe</h4>
+                        <p class="text-brand-500 font-bold mb-2">18.00 €</p>
+                        <p class="text-xs text-gray-500 mb-4 line-clamp-2">Sauce crème, fior di latte, brisures de truffes, champignons frais.</p>
+                        <div class="bg-white border border-gray-200 rounded-lg p-3 mb-4">
+                            <span class="text-xs font-semibold block mb-2">Options</span>
+                            <div class="flex justify-between items-center bg-gray-50 p-2 rounded">
+                                <span class="text-xs">Suppléments Parmesan</span>
+                                <span class="text-xs text-brand-500">+1.50 €</span>
+                            </div>
+                        </div>
+                        <button class="w-full bg-brand-900 text-white rounded-xl py-3 text-sm font-bold mt-auto">Ajouter au panier</button>
+                    </div>
+                </div>
+
+                <div class="flex-1">
+                    <p class="text-brand-500 font-semibold tracking-widest uppercase mb-4 text-sm">L'application client</p>
+                    <h2 class="text-4xl font-bold text-brand-900 mb-8 leading-tight">Une navigation conçue pour stimuler l'appétit.</h2>
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="font-bold text-lg text-brand-900 mb-2">Design Immersif</h4>
+                            <p class="text-gray-600 leading-relaxed">Une interface épurée mettant en avant la qualité de vos produits avec des visuels qui déclenchent l'acte d'achat instantané.</p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg text-brand-900 mb-2">Panier Intelligent</h4>
+                            <p class="text-gray-600 leading-relaxed">Le système propose automatiquement les suppléments et gère les cuissons, augmentant mécaniquement le ticket moyen.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4 : Technologie 3D / AR -->
+        <div class="slide bg-gray-50">
+            <div class="w-full max-w-6xl mx-auto text-center">
+                <p class="text-brand-500 font-semibold tracking-widest uppercase mb-4 text-sm">Innovation Premium</p>
+                <h2 class="text-4xl font-bold text-brand-900 mb-16">Visualisation en Réalité Augmentée.</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+                    <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+                        <div class="h-12 w-12 bg-gray-100 rounded-full flex items-center justify-center mb-6 text-brand-500">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                        </div>
+                        <h4 class="font-bold text-xl text-brand-900 mb-3">Taille réelle en 3D</h4>
+                        <p class="text-gray-600">Le client projette le plat sur sa table à l'échelle 1:1 via l'appareil photo du téléphone. Il valide visuellement la portion et la qualité.</p>
+                    </div>
+
+                    <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+                        <div class="h-12 w-12 bg-gray-100 rounded-full flex items-center justify-center mb-6 text-brand-500">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+                        </div>
+                        <h4 class="font-bold text-xl text-brand-900 mb-3">Ventes impulsives</h4>
+                        <p class="text-gray-600">Un produit visualisé en 3D génère un taux de conversion nettement supérieur et sécurise le choix du consommateur.</p>
+                    </div>
+
+                    <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm">
+                        <div class="h-12 w-12 bg-gray-100 rounded-full flex items-center justify-center mb-6 text-brand-500">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"></path></svg>
+                        </div>
+                        <h4 class="font-bold text-xl text-brand-900 mb-3">Moteur de viralité</h4>
+                        <p class="text-gray-600">Cette expérience unique incite les clients à partager l'interaction sur leurs réseaux sociaux, offrant une publicité organique à l'établissement.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5 : Cuisine & Opérationalité -->
+        <div class="slide">
+            <div class="w-full max-w-6xl mx-auto flex flex-col md:flex-row-reverse justify-between items-center gap-16">
+                <!-- Mockup de la Tablette Cuisine -->
+                <div class="mockup-tablet flex flex-col">
+                    <div class="p-4 border-b border-gray-800 flex justify-between text-white font-bold">
+                        <span>Commandes en cours (2)</span>
+                        <span class="text-gray-500 text-sm">20:45</span>
+                    </div>
+                    <div class="p-6 flex gap-4 h-full">
+                        <!-- Ticket 1 -->
+                        <div class="bg-[#292524] rounded-xl flex-1 border border-brand-500 p-4">
+                            <div class="flex justify-between items-start mb-4">
+                                <span class="bg-brand-500 text-white px-3 py-1 rounded text-xs font-bold">Table 4</span>
+                                <span class="text-gray-400 text-xs">Il y a 2 min</span>
+                            </div>
+                            <div class="space-y-4">
+                                <div>
+                                    <p class="text-white font-semibold">1x Entrecôte</p>
+                                    <p class="text-brand-500 text-sm">- Appoint</p>
+                                    <p class="text-gray-400 text-sm">- Sauce Poivre</p>
+                                </div>
+                                <div class="bg-red-900/40 border border-red-500/50 p-2 rounded text-red-200 text-xs">
+                                    Allergie signalée : Arachides
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Ticket 2 -->
+                        <div class="bg-[#292524] rounded-xl flex-1 border border-gray-700 p-4 opacity-50">
+                            <div class="flex justify-between items-start mb-4">
+                                <span class="bg-gray-700 text-white px-3 py-1 rounded text-xs">Table 8</span>
+                            </div>
+                            <div>
+                                <p class="text-white font-semibold">2x Salade César</p>
+                                <p class="text-gray-400 text-sm">- Sans oignons</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex-1">
+                    <p class="text-brand-500 font-semibold tracking-widest uppercase mb-4 text-sm">Le Back-office</p>
+                    <h2 class="text-4xl font-bold text-brand-900 mb-8 leading-tight">Une communication fluide entre la salle et la cuisine.</h2>
+                    <div class="space-y-6">
+                        <div>
+                            <h4 class="font-bold text-lg text-brand-900 mb-2">La tablette de production</h4>
+                            <p class="text-gray-600 leading-relaxed">Les commandes arrivent instantanément avec alerte sonore. Le statut évolue jusqu'au service.</p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-lg border-l-4 border-red-500 pl-3 text-brand-900 mb-2">Sécurité Alimentaire</h4>
+                            <p class="text-gray-600 leading-relaxed">Mise en évidence visuelle immédiate des contraintes alimentaires et des allergies pour sécuriser la préparation végétale ou spécifique.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6 : Bilan / Closing -->
+        <div class="slide bg-brand-900 text-center">
+            <div class="w-full max-w-4xl mx-auto">
+                <h2 class="text-4xl font-bold text-white mb-8">Plus de rentabilité. Moins de friction.</h2>
+                <p class="text-xl text-gray-400 font-light mb-16 leading-relaxed">Adopter ScanAppetit, c'est choisir d'optimiser l'efficacité de vos équipes tout en offrant la technologie la plus aboutie à vos clients.</p>
+                
+                <div class="grid grid-cols-3 gap-8 border-t border-gray-800 pt-16">
+                    <div>
+                        <div class="text-4xl font-black text-brand-500 mb-2">+25%</div>
+                        <p class="text-gray-400 text-sm">Ticket moyen estimé</p>
+                    </div>
+                    <div>
+                        <div class="text-4xl font-black text-brand-500 mb-2">-30%</div>
+                        <p class="text-gray-400 text-sm">De temps par commande</p>
+                    </div>
+                    <div>
+                        <div class="text-4xl font-black text-brand-500 mb-2">100%</div>
+                        <p class="text-gray-400 text-sm">Satisfaction client</p>
+                    </div>
+                </div>
+                <div class="h-1 w-24 bg-brand-500 mt-16 mx-auto"></div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        
+        function updateScroll() {
+            slides[currentSlide].scrollIntoView({ behavior: 'smooth' });
+        }
+        function nextSlide() {
+            if (currentSlide < slides.length - 1) {
+                currentSlide++;
+                updateScroll();
+            }
+        }
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateScroll();
+            }
+        }
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') nextSlide();
+            if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') prevSlide();
+        });
+    </script>
+</body>
+</html>

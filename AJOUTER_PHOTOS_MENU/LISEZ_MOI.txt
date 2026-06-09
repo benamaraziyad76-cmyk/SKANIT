@@ -1,0 +1,3 @@
+Déposez vos photos ici pour qu'elles soient automatiquement rognées et intégrées au menu client.
+
+Une fois les photos déposées, lancez le fichier "INTEGRER_MON_DEPOT.bat" à la racine du projet.
